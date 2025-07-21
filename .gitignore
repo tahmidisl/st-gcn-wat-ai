@@ -1,14 +1,25 @@
 #custom
 tmp*
 work_dir/*
-data
+data/*
+!data/BOLD/train_categorical.yaml
 config_v0/*
 backup/*
 .vscode
+.DS_Store
 model/*
 *.pt
 *.caffemodel
+*.pth
 cache/
+runs/
+logs/
+
+# Large data files
+*.npy
+*.pkl
+*.h5
+*.hdf5
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
