@@ -9,11 +9,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-# torchlight
-import torchlight
-from torchlight import str2bool
-from torchlight import DictAction
-from torchlight import import_class
+# torchlight - use local module to avoid conflicts
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from torchlight.torchlight.io import str2bool, DictAction, import_class, IO as TorchlightIO
+from torchlight.torchlight.gpu import visible_gpu, occupy_gpu
 
 class IO():
     """
@@ -50,7 +51,7 @@ class IO():
         self.arg = parser.parse_args(argv)
 
     def init_environment(self):
-        self.io = torchlight.IO(
+        self.io = TorchlightIO(
             self.arg.work_dir,
             save_log=self.arg.save_log,
             print_log=self.arg.print_log)
@@ -58,8 +59,8 @@ class IO():
 
         # gpu
         if self.arg.use_gpu:
-            gpus = torchlight.visible_gpu(self.arg.device)
-            torchlight.occupy_gpu(gpus)
+            gpus = visible_gpu(self.arg.device)
+            occupy_gpu(gpus)
             self.gpus = gpus
             self.dev = "cuda:0"
         else:

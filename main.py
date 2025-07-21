@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 import argparse
 import sys
+import os
 
-# torchlight
-import torchlight
-from torchlight import import_class
+# Add current directory to path to ensure we use local torchlight
+sys.path.insert(0, os.path.dirname(__file__))
+
+# torchlight - import the local version
+from torchlight.torchlight.io import import_class
 
 if __name__ == '__main__':
 

@@ -1,0 +1,10 @@
+
+
+code/prepare_bold_for_stgcn.py - Data preprocessing pipeline
+st-gcn/data/BOLD/train_data_categorical.npy - Training pose sequences
+st-gcn/data/BOLD/train_label_categorical.pkl - Training emotion labels
+st-gcn/data/BOLD/train_categorical.yaml - Model configuration
+
+val_data_categorical.npy (9.8MB) - Validation pose sequences
+val_label_categorical.pkl (23KB) - Validation emotion labels
+
