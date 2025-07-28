@@ -1,104 +1,66 @@
+# ST-GCN Emotion Recognition
 
-## Quick Setup
+Train ST-GCN (Spatial Temporal Graph Convolutional Networks) for emotion recognition using the BOLD dataset.
 
-### 1. Install Dependencies
+## Quick Start
 
+### 1. Setup Environment
 ```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
-```
 
-**Test your setup:**
-```bash
+# Test setup
 python test_setup.py
 ```
 
-### 2. Prepare BOLD Dataset
-
-1. Download the BOLD dataset and place it in the project root as `BOLD_public/`
-2. Convert BOLD data to ST-GCN format:
-
+### 2. Prepare Data
 ```bash
+# Convert BOLD dataset to ST-GCN format
 cd code
 python prepare_bold_for_stgcn.py --bold_path ../BOLD_public --output_path ../st-gcn/data/BOLD
 ```
 
-This creates:
-- `train_data_categorical.npy` - Training skeleton data
-- `train_label_categorical.pkl` - Training emotion labels  
-- `val_data_categorical.npy` - Validation skeleton data
-- `val_label_categorical.pkl` - Validation emotion labels
-- `train_categorical.yaml` - Training configuration
+### 3. Train Model
 
-### 3. Train the Model
-
-**Simple training script (recommended):**
+**CPU Training:**
 ```bash
-cd st-gcn
-
-# CPU training
 python train.py --epochs 200 --batch_size 16
-
-# GPU training  
-python train.py --gpu --epochs 200 --batch_size 64 --lr 0.01
 ```
 
-**Advanced training (direct):**
+**GPU Training:**
 ```bash
+python train.py --gpu --epochs 200 --batch_size 64
+```
+
+## Training Commands
+
+### Basic Training
+```bash
+# CPU training (recommended for testing)
+python train.py --epochs 200 --batch_size 8
+
+# GPU training (faster)
+python train.py --gpu --epochs 200 --batch_size 64
+
+# Debug mode (100 samples only)
+python train.py --debug --epochs 5
+```
+
+### Resume Training
+```bash
+# Resume from checkpoint
 python main.py recognition \
     -c data/BOLD/train_categorical.yaml \
-    --device 0 \
-    --batch_size 64 \
-    --num_epoch 200 \
-    --base_lr 0.01
+    --weights work_dir/emotion/bold/ST_GCN_categorical/epoch30_model.pt \
+    --start_epoch 30 --num_epoch 200 --batch_size 8 \
+    --use_gpu False --device -1
 ```
 
-## Key Parameters
-
-**Simple script (`train.py`):**
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `--epochs` | Number of training epochs | 200 |
-| `--batch_size` | Training batch size | 16 |
-| `--gpu` | Use GPU for training | False |
-| `--lr` | Learning rate | 0.01 |
-| `--debug` | Use only 100 samples | False |
-
-**Advanced (`main.py`):**
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `--num_epoch` | Number of training epochs | 200 |
-| `--batch_size` | Training batch size | 16 |
-| `--device` | GPU device (0) or CPU (-1) | [-1] |
-| `--base_lr` | Learning rate | 0.01 |
-| `--save_interval` | Save model every N epochs | 10 |
-| `--eval_interval` | Evaluate every N epochs | 5 |
-
-## Configuration Files
-
-Edit `st-gcn/data/BOLD/train_categorical.yaml` to customize:
-
-```yaml
-# Training settings
-device: [0]        # GPU (0) or CPU ([-1])
-batch_size: 64     # Batch size
-num_epoch: 200     # Number of epochs
-base_lr: 0.01      # Learning rate
-step: [50, 100, 150]  # LR decay epochs
-
-# Model settings  
-model_args:
-  num_class: 26    # Number of emotion classes
-  dropout: 0.5     # Dropout rate
-```
-
-## Output
-
-- **Models**: Saved in `work_dir/emotion/bold/ST_GCN_categorical/`
-- **Logs**: Training progress and metrics
-- **Best model**: `epoch{N}_model.pt` files
-
-## Testing Trained Model
-
+### Test Model
 ```bash
 python main.py recognition \
     -c data/BOLD/train_categorical.yaml \
@@ -106,35 +68,44 @@ python main.py recognition \
     --weights work_dir/emotion/bold/ST_GCN_categorical/epoch200_model.pt
 ```
 
-## Quick Examples
+## Key Parameters
 
-**Fast debug training (100 samples):**
-```bash
-python train.py --debug --epochs 5
-```
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--epochs` | Training epochs | 200 |
+| `--batch_size` | Batch size | 16 |
+| `--gpu` | Use GPU | False |
+| `--lr` | Learning rate | 0.01 |
+| `--debug` | Debug mode (100 samples) | False |
 
-**Full GPU training:**
-```bash
-python train.py --gpu --epochs 200 --batch_size 64
-```
+## Training Times
 
-**Custom learning rate:**
-```bash
-python train.py --gpu --lr 0.005 --epochs 100
-```
+| Hardware | Batch Size | Time for 200 Epochs |
+|----------|------------|---------------------|
+| **CPU** | 8 | ~9 hours |
+| **CPU** | 16 | ~15 hours |
+| **RTX 3090** | 64 | ~30 minutes |
+| **RTX 3090** | 128 | ~20 minutes |
+
+## Output
+
+- **Models**: `work_dir/emotion/bold/ST_GCN_categorical/`
+- **Logs**: `work_dir/emotion/bold/ST_GCN_categorical/log.txt`
+- **Checkpoints**: `epoch{N}_model.pt` files
 
 ## Data Format
 
 - **Input**: Skeleton sequences (N, C, T, V, M)
-  - N: Number of samples
-  - C: Coordinate channels (x, y)  
-  - T: Time frames
-  - V: Number of joints (18)
-  - M: Number of persons
-  
+  - N: Batch size
+  - C: 2 (x, y coordinates)
+  - T: 64 time frames
+  - V: 18 joints
+  - M: 1 person
 - **Output**: 26 emotion categories
 
+## Stop Training
 
+Press `Ctrl + C` in the terminal to stop training safely.
 
 ---
 
