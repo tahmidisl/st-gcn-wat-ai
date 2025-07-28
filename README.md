@@ -78,15 +78,6 @@ python main.py recognition \
 | `--lr` | Learning rate | 0.01 |
 | `--debug` | Debug mode (100 samples) | False |
 
-## Training Times
-
-| Hardware | Batch Size | Time for 200 Epochs |
-|----------|------------|---------------------|
-| **CPU** | 8 | ~9 hours |
-| **CPU** | 16 | ~15 hours |
-| **RTX 3090** | 64 | ~30 minutes |
-| **RTX 3090** | 128 | ~20 minutes |
-
 ## Output
 
 - **Models**: `work_dir/emotion/bold/ST_GCN_categorical/`
